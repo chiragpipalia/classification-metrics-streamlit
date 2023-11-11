@@ -14,24 +14,34 @@ st.set_page_config(layout="wide")
 st.title('Classification Metrics')
 st.subheader('KS - ROC - PR')
 st.text("Effects of class imbalance and separation on various classification metrics.")
-st.text("We will create 2 datasets, one with decent and another with not much separation and call them, Good and Bad respectively.")
+st.text("We will create 2 datasets, Baseline and Model. Adjust class separation and data imbalance to compare its effects on the metrics.")
 
-def create_dataset(size = 5000, scale = 5):
-	# Generate two classes out of normal distributions - good classifier
-	class1_x = np.random.normal(loc = 10, scale = scale, size = size)
-	class1_y = np.random.normal(loc = 1, scale = scale, size = size)
+def create_dataset(size = 10000, separation = 1, scale = 2, imbalance = False, minority_ratio = 0.5):
+	# separation = 1
+	center = 5
+	class0_base, class1_base = center-(center*separation) , center+(center*separation)
 
-	class2_x = np.random.normal(loc = 1, scale = scale, size = size)
-	class2_y = np.random.normal(loc = 5, scale = scale, size = size)
+	if imbalance:
+		# Generate two classes out of normal distributions - good classifier
+		class0_x = np.random.normal(loc = class0_base, scale = scale, size = int(size*(1-minority_ratio)))
+		class0_y = np.random.normal(loc = class0_base, scale = scale, size = int(size*(1-minority_ratio)))
 
-	df_class1 = pd.DataFrame({'x' : class1_x, 'y' : class1_y, 'class': 0})
-	df_class2 = pd.DataFrame({'x' : class2_x, 'y' : class2_y, 'class': 1})
-	df = pd.concat([df_class1, df_class2])
+		class1_x = np.random.normal(loc = class1_base, scale = scale, size = int(size*minority_ratio))
+		class1_y = np.random.normal(loc = class1_base, scale = scale, size = int(size*minority_ratio))
+	else:
+		size = int(size*minority_ratio)
+		class0_x = np.random.normal(loc = class0_base, scale = scale, size = size)
+		class0_y = np.random.normal(loc = class0_base, scale = scale, size = size)
+
+		class1_x = np.random.normal(loc = class1_base, scale = scale, size = size)
+		class1_y = np.random.normal(loc = class1_base, scale = scale, size = size)
+
+
+	df_class0 = pd.DataFrame({'x' : class0_x, 'y' : class0_y, 'class': 0})
+	df_class1 = pd.DataFrame({'x' : class1_x, 'y' : class1_y, 'class': 1})
+	df = pd.concat([df_class0, df_class1])
 	return df
 
-## Get inputs
-# size_filter = st.slider('Size', min_value=1000, max_value=5000, step=500)
-# scale_filter = st.slider('Scale', min_value=1, max_value=15, step=5)
 
 
 # chart_data = create_dataset(size = size_filter,
@@ -41,11 +51,11 @@ def create_dataset(size = 5000, scale = 5):
 def get_train_test_split(df):
   X = df[['x', 'y']].values
   y = df[['class']].values
-  train_samples = 1000  # Samples used for training the models
   X_train, X_test, y_train, y_test = train_test_split(
       X,
       y,
-      shuffle=True
+      test_size = 0.33,
+      stratify=y
   )
   return X_train, X_test, y_train, y_test
 
@@ -122,8 +132,30 @@ def get_classes_cdf(y_real, y_proba, ret_type = 'melt'):
         'proba1': class1['proba'].values}
   return results, ks
 
+baseline_col, model_col = st.columns(2)
 
-chart_data = create_dataset(scale = 5)
+with baseline_col:
+	st.header("Baseline")
+	minority_ratio_baseline = 0.5
+	imbalance_baseline = st.toggle('Make Base Imbalance')
+	if imbalance_baseline:
+		minority_ratio_baseline = st.slider('Minority ratio (baseline)', min_value=0.01, max_value=0.5, step=0.01, value=0.5)
+
+	scale =  2
+	separation_baseline = st.slider('Separation (baseline)', min_value=0.0, max_value=1.0, step=0.1, value = 1.0)
+
+with model_col:
+	st.header("Model")
+	minority_ratio_model = 0.5
+	imbalance_model = st.toggle('Make Modeled Imbalance')
+	if imbalance_model:
+		minority_ratio_model = st.slider('Minority ratio (model)', min_value=0.01, max_value=0.5, step=0.01, value=0.5)
+
+	scale =  2
+	separation_model = st.slider('Separation (model)', min_value=0.0, max_value=1.0, step=0.1, value = 1.0)
+
+#scale = 5
+chart_data = create_dataset(separation = separation_baseline, scale = scale, imbalance = imbalance_baseline, minority_ratio = minority_ratio_baseline)
 fig_data_good = px.scatter(
     chart_data,
     x="x",
@@ -137,7 +169,8 @@ fig_prob_good =  px.histogram(df_res_good, x = 'y_proba',  color = 'y_test', nbi
 cdf_good, ks_good = get_classes_cdf(y_test_good.flatten(), y_proba_good, ret_type = 'melt')
 fig_cdf_good = px.line(cdf_good, x='proba' , y='cdf' , color='class')
 
-chart_data_bad = create_dataset(scale = 15)
+# scale = 15
+chart_data_bad = create_dataset(separation = separation_model, scale = scale, imbalance = imbalance_model, minority_ratio = minority_ratio_model)
 fig_data_bad = px.scatter(
     chart_data_bad,
     x="x",
@@ -185,10 +218,13 @@ pr_auc_score_bad =  round(auc(recall_bad, precision_bad), 2)
 df_pr_bad = pd.DataFrame({'recall' : recall_bad, 'precision' : precision_bad})
 fig_pr_bad = px.line(df_pr_bad, x='recall' , y='precision')
 
+
+
+
 col1, col2 = st.columns(2)
 
 with col1:
-	st.header("Good")
+	st.header("Baseline")
 	st.plotly_chart(fig_data_good, theme="streamlit", use_container_width=True)
 	st.subheader("Probability Dist")
 	st.plotly_chart(fig_prob_good, theme="streamlit", use_container_width=True)
@@ -203,7 +239,7 @@ with col1:
 	st.plotly_chart(fig_pr_good, theme="streamlit", use_container_width=True)
 	
 with col2:
-	st.header("Bad")
+	st.header("Model")
 	st.plotly_chart(fig_data_bad, theme="streamlit", use_container_width=True)
 	st.subheader("Probability Dist")
 	st.plotly_chart(fig_prob_bad, theme="streamlit", use_container_width=True)
