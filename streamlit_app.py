@@ -132,8 +132,8 @@ def get_classes_cdf(y_real, y_proba, ret_type = 'melt'):
         'proba1': class1['proba'].values}
   return results, ks
 
-baseline_col, model_col = st.columns(2)
 
+baseline_col, model_col = st.columns(2)
 with baseline_col:
 	st.header("Baseline")
 	minority_ratio_baseline = 0.5
@@ -163,9 +163,9 @@ fig_data_good = px.scatter(
     color="class"
 )
 y_proba_good, y_test_good = train_model_return_probs(chart_data)
-df_res_good = pd.DataFrame({'y_test' : y_test_good.flatten(), 'y_proba': y_proba_good[:, 1]})
-df_res_good.sort_values(by='y_test', inplace=True)
-fig_prob_good =  px.histogram(df_res_good, x = 'y_proba',  color = 'y_test', nbins=25, barmode = 'group')
+df_res_good = pd.DataFrame({'class' : y_test_good.flatten(), 'y_proba': y_proba_good[:, 1]})
+df_res_good.sort_values(by='class', inplace=True)
+fig_prob_good =  px.histogram(df_res_good, x = 'y_proba',  color = 'class', nbins=25, barmode = 'group')
 cdf_good, ks_good = get_classes_cdf(y_test_good.flatten(), y_proba_good, ret_type = 'melt')
 fig_cdf_good = px.line(cdf_good, x='proba' , y='cdf' , color='class')
 
@@ -178,9 +178,9 @@ fig_data_bad = px.scatter(
     color="class"
 )
 y_proba_bad, y_test_bad = train_model_return_probs(chart_data_bad)
-df_res_bad = pd.DataFrame({'y_test' : y_test_bad.flatten(), 'y_proba': y_proba_bad[:, 1]})
-df_res_bad.sort_values(by='y_test', inplace=True)
-fig_prob_bad =  px.histogram(df_res_bad, x = 'y_proba',  color = 'y_test', nbins=25, barmode = 'group')
+df_res_bad = pd.DataFrame({'class' : y_test_bad.flatten(), 'y_proba': y_proba_bad[:, 1]})
+df_res_bad.sort_values(by='class', inplace=True)
+fig_prob_bad =  px.histogram(df_res_bad, x = 'y_proba',  color = 'class', nbins=25, barmode = 'group')
 cdf_bad, ks_bad = get_classes_cdf(y_test_bad.flatten(), y_proba_bad, ret_type = 'melt')
 fig_cdf_bad = px.line(cdf_bad, x='proba' , y='cdf' , color='class')
 
@@ -218,19 +218,20 @@ pr_auc_score_bad =  round(auc(recall_bad, precision_bad), 2)
 df_pr_bad = pd.DataFrame({'recall' : recall_bad, 'precision' : precision_bad})
 fig_pr_bad = px.line(df_pr_bad, x='recall' , y='precision')
 
-
+st.subheader('Simulated data')
 col1, col2 = st.columns(2)
-
 with col1:
 	st.header("Baseline")
 	st.plotly_chart(fig_data_good, theme="streamlit", use_container_width=True)
-	st.subheader("Predicted Probability Dist")
-	st.plotly_chart(fig_prob_good, theme="streamlit", use_container_width=True)
-
 with col2:
 	st.header("Model")
 	st.plotly_chart(fig_data_bad, theme="streamlit", use_container_width=True)
-	st.subheader("Predicted Probability Dist")
+
+st.subheader("Predicted Probability Dist")
+col1_predprob, col2_predprob = st.columns(2)
+with col1_predprob:
+	st.plotly_chart(fig_prob_good, theme="streamlit", use_container_width=True)
+with col2_predprob:
 	st.plotly_chart(fig_prob_bad, theme="streamlit", use_container_width=True)
 
 
@@ -242,11 +243,11 @@ st.write("""It's a measure of the discriminatory power of a binary classificatio
 	A higher KS value indicates better model discrimination.""")
 col1_ks, col2_ks = st.columns(2)
 with col1_ks:
-	st.metric("KS", ks_good)
+	st.metric("K-S Statistic", ks_good)
 	st.plotly_chart(fig_cdf_good, theme="streamlit", use_container_width=True)
 with col2_ks:
 	# st.subheader("KS")
-	st.metric("KS", ks_bad)
+	st.metric("K-S Statistic", ks_bad)
 	st.plotly_chart(fig_cdf_bad, theme="streamlit", use_container_width=True)
 
 ## ROC
@@ -266,7 +267,7 @@ with col2_roc:
 	st.plotly_chart(fig_fpr_tpr_bad, theme="streamlit", use_container_width=True)
 
 ## PR	
-st.subheader("Precision Recall")
+st.subheader("Precision Recall (PR)")
 st.write("""These are metrics used for evaluating the performance of binary classification models, especially when dealing with imbalanced datasets. 
 	Precision is the ratio of true positive predictions to the total predicted positives, while recall (or sensitivity) is the ratio of true positives to the total actual positives. 
 	Precision-Recall curves provide insight into a model's ability to correctly identify positive instances and minimize false positives.""")
