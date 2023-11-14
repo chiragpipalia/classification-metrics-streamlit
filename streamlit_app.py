@@ -236,9 +236,9 @@ with col2:
 
 ## KS
 st.subheader("Kolmogorov-Smirnov (KS)")
-st.text("""It's a measure of the discriminatory power of a binary classification model. 
+st.write("""It's a measure of the discriminatory power of a binary classification model. 
 	It's often used in credit risk modeling. 
-	The KS statistic represents the maximum vertical distance between the cumulative distributions of the positive and negative classes in the predicted probabilities. 
+	The KS statistic represents the ***maximum vertical distance*** between the cumulative distributions of the positive and negative classes in the predicted probabilities. 
 	A higher KS value indicates better model discrimination.""")
 col1_ks, col2_ks = st.columns(2)
 with col1_ks:
@@ -255,7 +255,7 @@ st.write("""This is a performance metric for binary classification problems at v
 	The ROC curve is a graphical representation of the true positive rate against the false positive rate. 
 	AUC-ROC measures the area under this curve. A higher AUC-ROC value (closer to 1) suggests better discrimination and model performance.""")
 st.markdown("**Use Cases:**")
-st.write("""Commonly used in scenarios where the *cost of false positives and false negatives is roughly equal*, 
+st.write("""Commonly used in scenarios where the ***cost of false positives and false negatives is roughly equal***, 
 	and the overall classification performance is of interest.""")
 col1_roc, col2_roc = st.columns(2)
 with col1_roc:	
@@ -271,7 +271,7 @@ st.write("""These are metrics used for evaluating the performance of binary clas
 	Precision is the ratio of true positive predictions to the total predicted positives, while recall (or sensitivity) is the ratio of true positives to the total actual positives. 
 	Precision-Recall curves provide insight into a model's ability to correctly identify positive instances and minimize false positives.""")
 st.markdown("**Use Cases:**")
-st.write("""Particularly useful when the *class distribution is imbalanced*, and the focus is on the positive class, 
+st.write("""Particularly useful when the ***class distribution is imbalanced***, and the focus is on the positive class, 
 	such as in fraud detection or rare disease diagnosis.""")
 col1_pr, col2_pr = st.columns(2)
 with col1_pr:
