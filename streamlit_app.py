@@ -42,12 +42,6 @@ def create_dataset(size = 10000, separation = 1, scale = 2, imbalance = False, m
 	df = pd.concat([df_class0, df_class1])
 	return df
 
-
-
-# chart_data = create_dataset(size = size_filter,
-# 	scale = scale_filter
-# 	)
-
 def get_train_test_split(df):
   X = df[['x', 'y']].values
   y = df[['class']].values
@@ -154,7 +148,6 @@ with model_col:
 	scale =  2
 	separation_model = st.slider('Separation (model)', min_value=0.0, max_value=1.0, step=0.1, value = 1.0)
 
-#scale = 5
 chart_data = create_dataset(separation = separation_baseline, scale = scale, imbalance = imbalance_baseline, minority_ratio = minority_ratio_baseline)
 fig_data_good = px.scatter(
     chart_data,
@@ -169,7 +162,6 @@ fig_prob_good =  px.histogram(df_res_good, x = 'y_proba',  color = 'class', nbin
 cdf_good, ks_good = get_classes_cdf(y_test_good.flatten(), y_proba_good, ret_type = 'melt')
 fig_cdf_good = px.line(cdf_good, x='proba' , y='cdf' , color='class')
 
-# scale = 15
 chart_data_bad = create_dataset(separation = separation_model, scale = scale, imbalance = imbalance_model, minority_ratio = minority_ratio_model)
 fig_data_bad = px.scatter(
     chart_data_bad,
@@ -177,6 +169,7 @@ fig_data_bad = px.scatter(
     y="y",
     color="class"
 )
+
 y_proba_bad, y_test_bad = train_model_return_probs(chart_data_bad)
 df_res_bad = pd.DataFrame({'class' : y_test_bad.flatten(), 'y_proba': y_proba_bad[:, 1]})
 df_res_bad.sort_values(by='class', inplace=True)
@@ -218,7 +211,7 @@ pr_auc_score_bad =  round(auc(recall_bad, precision_bad), 2)
 df_pr_bad = pd.DataFrame({'recall' : recall_bad, 'precision' : precision_bad})
 fig_pr_bad = px.line(df_pr_bad, x='recall' , y='precision')
 
-st.subheader('Simulated data')
+st.subheader("Simulated data")
 col1, col2 = st.columns(2)
 with col1:
 	st.header("Baseline")
