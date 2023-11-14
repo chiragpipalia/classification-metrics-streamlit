@@ -219,41 +219,53 @@ df_pr_bad = pd.DataFrame({'recall' : recall_bad, 'precision' : precision_bad})
 fig_pr_bad = px.line(df_pr_bad, x='recall' , y='precision')
 
 
-
-
 col1, col2 = st.columns(2)
 
 with col1:
 	st.header("Baseline")
 	st.plotly_chart(fig_data_good, theme="streamlit", use_container_width=True)
-	st.subheader("Probability Dist")
+	st.subheader("Predicted Probability Dist")
 	st.plotly_chart(fig_prob_good, theme="streamlit", use_container_width=True)
-	st.subheader("Kolmogorov-Smirnov (KS)")
-	st.text("""It's a measure of the discriminatory power of a binary classification model. It's often used in credit risk modeling. The KS statistic represents the maximum vertical distance between the cumulative distributions of the positive and negative classes in the predicted probabilities. A higher KS value indicates better model discrimination.""")
-	st.metric("KS", ks_good)
-	st.plotly_chart(fig_cdf_good, theme="streamlit", use_container_width=True)
-	st.subheader("ROC - AUC")
-	st.text("""This is a performance metric for binary classification problems at various threshold settings. The ROC curve is a graphical representation of the true positive rate against the false positive rate. AUC-ROC measures the area under this curve. A higher AUC-ROC value (closer to 1) suggests better discrimination and model performance.""")
-	st.text("""Commonly used in scenarios where the cost of false positives and false negatives is roughly equal, and the overall classification performance is of interest.""")
-	st.metric("ROC AUC", roc_auc_score_good, round(roc_auc_score_good-0.5, 2))
-	st.plotly_chart(fig_fpr_tpr_good, theme="streamlit", use_container_width=True)
-	st.subheader("Precision Recall")
-	st.text("""These are metrics used for evaluating the performance of binary classification models, especially when dealing with imbalanced datasets. Precision is the ratio of true positive predictions to the total predicted positives, while recall (or sensitivity) is the ratio of true positives to the total actual positives. Precision-Recall curves provide insight into a model's ability to correctly identify positive instances and minimize false positives.""")
-	st.text("""Particularly useful when the class distribution is imbalanced, and the focus is on the positive class, such as in fraud detection or rare disease diagnosis.""")
-	st.metric("PR AUC", pr_auc_score_good, round(pr_auc_score_good-0.5, 2))
-	st.plotly_chart(fig_pr_good, theme="streamlit", use_container_width=True)
-	
+
 with col2:
 	st.header("Model")
 	st.plotly_chart(fig_data_bad, theme="streamlit", use_container_width=True)
-	st.subheader("Probability Dist")
+	st.subheader("Predicted Probability Dist")
 	st.plotly_chart(fig_prob_bad, theme="streamlit", use_container_width=True)
-	st.subheader("KS")
+
+
+## KS
+st.subheader("Kolmogorov-Smirnov (KS)")
+st.text("""It's a measure of the discriminatory power of a binary classification model. It's often used in credit risk modeling. The KS statistic represents the maximum vertical distance between the cumulative distributions of the positive and negative classes in the predicted probabilities. A higher KS value indicates better model discrimination.""")
+col1_ks, col2_ks = st.columns(2)
+with col1_ks:
+	st.metric("KS", ks_good)
+	st.plotly_chart(fig_cdf_good, theme="streamlit", use_container_width=True)
+with col2_ks:
+	# st.subheader("KS")
 	st.metric("KS", ks_bad)
 	st.plotly_chart(fig_cdf_bad, theme="streamlit", use_container_width=True)
-	st.subheader("ROC - AUC")
+
+## ROC
+st.subheader("ROC - AUC")
+st.text("""This is a performance metric for binary classification problems at various threshold settings. The ROC curve is a graphical representation of the true positive rate against the false positive rate. AUC-ROC measures the area under this curve. A higher AUC-ROC value (closer to 1) suggests better discrimination and model performance.""")
+st.text("""Commonly used in scenarios where the cost of false positives and false negatives is roughly equal, and the overall classification performance is of interest.""")
+col1_roc, col2_roc = st.columns(2)
+with col1_roc:	
+	st.metric("ROC AUC", roc_auc_score_good, round(roc_auc_score_good-0.5, 2))
+	st.plotly_chart(fig_fpr_tpr_good, theme="streamlit", use_container_width=True)
+with col2_roc:	
 	st.metric("ROC AUC", roc_auc_score_bad, round(roc_auc_score_bad-0.5, 2))
 	st.plotly_chart(fig_fpr_tpr_bad, theme="streamlit", use_container_width=True)
-	st.subheader("PR")
+
+## PR	
+st.subheader("Precision Recall")
+st.text("""These are metrics used for evaluating the performance of binary classification models, especially when dealing with imbalanced datasets. Precision is the ratio of true positive predictions to the total predicted positives, while recall (or sensitivity) is the ratio of true positives to the total actual positives. Precision-Recall curves provide insight into a model's ability to correctly identify positive instances and minimize false positives.""")
+st.text("""Particularly useful when the class distribution is imbalanced, and the focus is on the positive class, such as in fraud detection or rare disease diagnosis.""")
+col1_pr, col2_pr = st.columns(2)
+with col1_pr:
+	st.metric("PR AUC", pr_auc_score_good, round(pr_auc_score_good-0.5, 2))
+	st.plotly_chart(fig_pr_good, theme="streamlit", use_container_width=True)
+with col2_pr:
 	st.metric("PR AUC", pr_auc_score_bad, round(pr_auc_score_bad-0.5, 2))
 	st.plotly_chart(fig_pr_bad, theme="streamlit", use_container_width=True)
