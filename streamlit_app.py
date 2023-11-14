@@ -40,6 +40,7 @@ def create_dataset(size = 10000, separation = 1, scale = 2, imbalance = False, m
 	df_class0 = pd.DataFrame({'x' : class0_x, 'y' : class0_y, 'class': 0})
 	df_class1 = pd.DataFrame({'x' : class1_x, 'y' : class1_y, 'class': 1})
 	df = pd.concat([df_class0, df_class1])
+	df.sort_values(by='class', inplace = True)
 	return df
 
 def get_train_test_split(df):
@@ -214,10 +215,8 @@ fig_pr_bad = px.line(df_pr_bad, x='recall' , y='precision')
 st.subheader("Simulated data")
 col1, col2 = st.columns(2)
 with col1:
-	st.header("Baseline")
 	st.plotly_chart(fig_data_good, theme="streamlit", use_container_width=True)
 with col2:
-	st.header("Model")
 	st.plotly_chart(fig_data_bad, theme="streamlit", use_container_width=True)
 
 st.subheader("Predicted Probability Dist")
